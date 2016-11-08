@@ -27,36 +27,34 @@ public class SimpleWebServer {
 
         DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 
-        String header200 = "HTTP/1.0 200 Document Follows\r\n" +
-                "Content-Type: text/html; charset=UTF-8\r\n" +
-                "Content-Length: xxx \r\n" +
-                "\r\n";
-
-        String header404 = "HTTP/1.0 404 Not Found\r\n" +
-                "Content-Type: text/html; charset=UTF-8\r\n" +
-                "Content-Length: xxx \r\n" +
-                "\r\n";
-
-
-        if (header[1].equals("/")) {
-            out.write(header200.getBytes());
-            out.write(readFile("web-root/index.html"));
-            out.flush();
-
-        } else {
-            out.write(header404.getBytes());
-            out.flush();
-        }
-
     }
 
-    public static void headerBuilder(String type) {
-        switch (type) {
-            case ("html"):
-                break;
-            case ("image"):
-                break;
-        }
+
+
+    public static String headerBuilder(String resource) {
+
+        String statusCode = "";
+        String fileType = "";
+        String size = "";
+
+        File file = new File(resource);
+
+       if ( file.exists()) {
+           statusCode = "200";
+           fileType = file.getName();
+           size = String.valueOf(file.length());
+       } else {
+           statusCode = "404 File Not Found";
+           fileType = "null";
+           size = "null";
+       }
+
+
+
+        return "HTTP/1.0 " + statusCode + "\r\n" +
+                "Content-Type: " + fileType + "; charset=UTF-8\r\n" +
+                "Content-Length: " + size + "\r\n" +
+                "\r\n";
 
     }
 

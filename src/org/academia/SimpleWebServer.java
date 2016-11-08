@@ -21,33 +21,53 @@ public class SimpleWebServer {
         Socket clientSocket = serverSocket.accept();
         System.out.println(("Ligado a: " + clientSocket));
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String[] header = in.readLine().split(" ");
-        System.out.println(in.readLine());
-
         DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        String[] browserMessage = in.readLine().split(" ");
+        System.out.println(browserMessage[1]);
+
+        File file = getFileFromResource(browserMessage[1].substring(1));
+        System.out.println(file.exists());
+        String x = headerBuilder(file);
+
+        readFile(file);
+
+        out.write(x.getBytes());
+        out.write(readFile(file));
+        out.close();
+
+
+    }
+
+    public static File getFileFromResource(String resource) {
+
+        if ( resource.isEmpty() ) {
+            resource = "index.html";
+        }
+
+        return new File("web-root/" + resource);
 
     }
 
 
-
-    public static String headerBuilder(String resource) {
+    public static String headerBuilder(File file) {
 
         String statusCode = "";
         String fileType = "";
         String size = "";
 
-        File file = new File(resource);
+        if ( file.exists() ) {
+            statusCode = "200 Document Follows";
+            fileType = file.getName();
+            size = String.valueOf(file.length());
 
-       if ( file.exists()) {
-           statusCode = "200";
-           fileType = file.getName();
-           size = String.valueOf(file.length());
-       } else {
-           statusCode = "404 File Not Found";
-           fileType = "null";
-           size = "null";
-       }
+        } else {
+            statusCode = "404 Not Found";
+            fileType = "text/html";
+            size = "0";
+
+        }
 
 
 
@@ -58,11 +78,11 @@ public class SimpleWebServer {
 
     }
 
-    public static byte[] readFile(String path) throws IOException {
+    public static byte[] readFile(File file) throws IOException {
 
         byte[] indexData;
 
-            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(path));
+            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
             indexData = new byte[1024];
 
             inputStream.read(indexData);

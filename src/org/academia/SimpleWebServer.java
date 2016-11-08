@@ -15,19 +15,17 @@ public class SimpleWebServer {
         String hostName = "localhost";
         int portNumber = 4000;
 
-        byte[] test = readFile("web-root/index.html");
-        System.out.println(test[10]);
-
         ServerSocket serverSocket = new ServerSocket(portNumber);
         System.out.println("À espera de ligação...");
 
-        Socket clienteSocket = serverSocket.accept();
-        System.out.println(("Ligado a: " + clienteSocket));
+        Socket clientSocket = serverSocket.accept();
+        System.out.println(("Ligado a: " + clientSocket));
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(clienteSocket.getInputStream()));
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         String[] header = in.readLine().split(" ");
+        System.out.println(in.readLine());
 
-        DataOutputStream out = new DataOutputStream(clienteSocket.getOutputStream());
+        DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 
         String header200 = "HTTP/1.0 200 Document Follows\r\n" +
                 "Content-Type: text/html; charset=UTF-8\r\n" +
@@ -48,6 +46,16 @@ public class SimpleWebServer {
         } else {
             out.write(header404.getBytes());
             out.flush();
+        }
+
+    }
+
+    public static void headerBuilder(String type) {
+        switch (type) {
+            case ("html"):
+                break;
+            case ("image"):
+                break;
         }
 
     }

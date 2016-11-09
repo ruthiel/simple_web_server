@@ -18,77 +18,14 @@ public class SimpleWebServer {
         ServerSocket serverSocket = new ServerSocket(portNumber);
         System.out.println("À espera de ligação...");
 
+
         while (true) {
             Socket clientSocket = serverSocket.accept();
-            System.out.println(("Ligado a: " + clientSocket));
-
-            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            String[] browserMessage = in.readLine().split(" ");
-            System.out.println(browserMessage[1]);
-
-            File file = getFileFromResource(browserMessage[1].substring(1));
-            System.out.println("This file exists: " + file.exists());
-            String header = headerBuilder(file);
-            readFile(file);
-
-            out.write(header.getBytes());
-            out.write(readFile(file));
-            out.close();
+            System.out.println("Entrou este IP: " + clientSocket.getRemoteSocketAddress());
+            Thread thread = new Thread(new MultipleClient(clientSocket));
+            thread.start();
         }
 
-    }
-
-    public static File getFileFromResource(String resource) {
-
-        if ( resource.isEmpty() ) {
-            resource = "index.html";
-        }
-
-        return new File("web-root/" + resource);
-
-    }
-
-
-    public static String headerBuilder(File file) {
-
-        String statusCode = "";
-        String fileType = "";
-        String size = "";
-
-        if ( file.exists() ) {
-            statusCode = "200 Document Follows";
-            fileType = file.getName();
-            size = String.valueOf(file.length());
-
-        } else {
-            statusCode = "404 Not Found";
-            fileType = "text/html";
-            size = "0";
-
-        }
-
-
-
-        return "HTTP/1.0 " + statusCode + "\r\n" +
-                "Content-Type: " + fileType + "; charset=UTF-8\r\n" +
-                "Content-Length: " + size + "\r\n" +
-                "\r\n";
-
-    }
-
-    public static byte[] readFile(File file) throws IOException {
-
-        byte[] indexData;
-
-            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file));
-            indexData = new byte[1024];
-
-            inputStream.read(indexData);
-            inputStream.close();
-
-        return indexData;
     }
 
 }

@@ -18,25 +18,25 @@ public class SimpleWebServer {
         ServerSocket serverSocket = new ServerSocket(portNumber);
         System.out.println("À espera de ligação...");
 
-        Socket clientSocket = serverSocket.accept();
-        System.out.println(("Ligado a: " + clientSocket));
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            System.out.println(("Ligado a: " + clientSocket));
 
-        DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+            DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        String[] browserMessage = in.readLine().split(" ");
-        System.out.println(browserMessage[1]);
+            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            String[] browserMessage = in.readLine().split(" ");
+            System.out.println(browserMessage[1]);
 
-        File file = getFileFromResource(browserMessage[1].substring(1));
-        System.out.println(file.exists());
-        String x = headerBuilder(file);
+            File file = getFileFromResource(browserMessage[1].substring(1));
+            System.out.println("This file exists: " + file.exists());
+            String header = headerBuilder(file);
+            readFile(file);
 
-        readFile(file);
-
-        out.write(x.getBytes());
-        out.write(readFile(file));
-        out.close();
-
+            out.write(header.getBytes());
+            out.write(readFile(file));
+            out.close();
+        }
 
     }
 
